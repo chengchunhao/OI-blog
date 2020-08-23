@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta charset="utf-8" />
+		<script type="text/javascript">uojHome = "https://uoj.ac"</script>
+		<link type="text/css" rel="stylesheet" href="http://uoj.ac/css/bootstrap.min.css?v=2015.5.31" />
+		<link type="text/css" rel="stylesheet" href="http://uoj.ac/css/bootstrap-theme.min.css?v=2015.5.31" />
+		<script src="https://uoj.ac/js/jquery.min.js"></script>
+		<link type="text/css" rel="stylesheet" href="https://uoj.ac/css/sh_typical.min.css" />
+		<script src="https://uoj.ac/js/sh_main.min.js"></script><script type="text/javascript">$(document).ready(function(){sh_highlightDocument()})</script>
+		<script src="../OI-blog/files/mathjax-config.js" defer></script>
+		<script type="text/javascript" id="MathJax-script" async
+		src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+		</script>
+	</head>
+	<body>
+<p>题意：T组数据，每组给定一个p，求$2^{2^{2^{...}}} \text{%} p$的值  </p>
+<p>考虑扩展欧拉定理：$a^b \equiv a^d (mod \text{ } p)$，其中，当$b < \varphi(p)$时，$d=b$，否则$d=b \text{%} \varphi(p) + \varphi(p)$ </p>
+<p>令$x=2^{2^{2^{...}}} \text{%} p$，那么要求的值就是$2^x \text{%} p$  </p>
+<p>根据上面的定理$2^x \text{%} p \equiv 2^{x \text{%} \varphi(p) + \varphi(p)} (mod \text{ } p)$ ，则转变为求$x \text{%} \varphi(p)$（因为$\varphi(p)$）可以直接求  </p>
+<p>然后再来一次</p>
+<p>要求$x \text{%} \varphi(p)$，即求$2^x \text{%} \varphi(p)$  </p>
+<p>根据定理：$2^x \text{%} \varphi(p) \equiv 2^{x \text{%} \varphi(\varphi(p)) + \varphi(\varphi(p))} (mod \text{ } \varphi(p))$  </p>
+<p>同理，转变为求$x \text{%} \varphi(\varphi(p))$  </p>
+<p>……  </p>
+<p>……  </p>
+<p>一直<del>套娃</del>重复，直到模数为1时return，然后合并答案  </p>
+<p>附上代码（这是darkbzoj上最短的一份代码，并且我没有进行压行操作）  </p>
+<div class="panel-body"><pre><code class="sh_cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+typedef long long ll;
+int fpow(ll a,ll b,int p)
+{
+	ll res=1;
+	for(;b;b&gt;&gt;=1,a=1ll*a*a%p)
+		if(b&amp;1)res=1ll*res*a%p;
+	return res;
+}
+int getphi(int x)
+{
+	ll res=x;
+	int m=sqrt(x)+0.5;
+	for(int i=2;i&lt;=m;++i)if(x%i==0)
+	{
+		res=res*(i-1)/i;
+		while(x%i==0)x/=i;
+	}
+	if(x!=1)res=res*(x-1)/x;
+	return res;
+}
+int solve(int mod)
+{
+	if(mod==1)return 0;
+	int phi=getphi(mod);
+	return fpow(2,solve(phi)+phi,mod);
+}
+int T,p;
+int main()
+{
+	for(cin&gt;&gt;T;T;T--)
+	{
+		cin&gt;&gt;p;
+		cout&lt;&lt;solve(p)&lt;&lt;endl;
+	}
+	return 0;
+}
+</code></pre></div>
+	</body>
+</html>
